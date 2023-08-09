@@ -1,0 +1,23 @@
+{
+  "name": "cz.xprees.scene-management",
+  "rootNamespace": "Xprees.SceneManagement",
+  "references": [
+    "GUID:f51ebe6a0ceec4240a699833d6309b23",
+    "GUID:593a5b492d29ac6448b1ebf7f035ef33",
+    "GUID:9e24947de15b9834991c9d8411ea37cf",
+    "GUID:84651a3751eca9349aac36a66bba901b",
+    "GUID:18c15ac4829a4f5db34ce4aa0dd6e6de",
+    "GUID:758763dcb3bb46caad0f8486302cbadf",
+    "GUID:359f36c9ea1441da89f5bbf1778b36d2",
+    "GUID:999c2ca78ab34358a1222750376a501c"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
