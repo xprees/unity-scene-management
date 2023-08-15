@@ -19,10 +19,14 @@ namespace Xprees.SceneManagement.Editor
         public static void CloseScene(SceneSO scene)
         {
             lock (scene) scene.IsBeingProcessed = true;
-            EditorSceneManager.CloseScene(
-                SceneManager.GetSceneByPath(scene.GetScenePath()),
-                true
-            );
+            var sceneByPath = SceneManager.GetSceneByPath(scene.GetScenePath());
+            if (sceneByPath.isDirty)
+            {
+                EditorSceneManager.SaveModifiedScenesIfUserWantsTo(new[] { sceneByPath });
+            }
+
+            EditorSceneManager.CloseScene(sceneByPath, true);
+
             lock (scene) scene.IsBeingProcessed = false;
             scene.IsLoaded = false;
         }
