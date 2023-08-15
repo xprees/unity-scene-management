@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.ScriptableObjects;
 
@@ -24,7 +23,6 @@ namespace Xprees.SceneManagement.Editor
 
         private bool IsSceneOpen(string scenePath)
         {
-            Debug.Log($"Testing scene path: {scenePath}");
             for (var i = 0; i < SceneManager.sceneCount; i++)
             {
                 var currentScene = SceneManager.GetSceneAt(i);

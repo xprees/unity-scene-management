@@ -14,7 +14,6 @@ namespace Xprees.SceneManagement.Editor
         static SceneDropdownEditor()
         {
             sceneTracker = new EditorSceneTracker();
-
             ToolbarExtender.LeftToolbarGUI.Add(OnToolbarGUI);
         }
 
@@ -43,7 +42,8 @@ namespace Xprees.SceneManagement.Editor
             GUILayout.FlexibleSpace();
         }
 
-        private static GUIContent GetTitle() => new("Scenes", EditorGUIUtility.IconContent("BuildSettings.Editor").image);
+        private static GUIContent GetTitle() =>
+            new("Scenes", EditorGUIUtility.IconContent("BuildSettings.Editor").image);
 
         #endregion
 
@@ -51,24 +51,11 @@ namespace Xprees.SceneManagement.Editor
         {
             if (sceneTracker.IsSceneOpen(scene))
             {
-                CloseScene(scene);
+                EditorSceneLoader.CloseScene(scene);
                 return;
             }
 
-            OpenScene(scene);
-        }
-
-        private static void OpenScene(SceneSO scene)
-        {
-            Debug.Log($"Loading scene: {scene.sceneName}");
             EditorSceneLoader.OpenScene(scene);
         }
-
-        private static void CloseScene(SceneSO scene)
-        {
-            Debug.Log($"Closing scene: {scene.sceneName}");
-            EditorSceneLoader.CloseScene(scene);
-        }
-
     }
 }
