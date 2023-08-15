@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.ScriptableObjects;
@@ -19,9 +18,6 @@ namespace Xprees.SceneManagement.Editor
         public EditorSceneTracker()
         {
             InitScenesList();
-
-            EditorSceneManager.sceneOpened += OnSceneOpened;
-            EditorSceneManager.sceneClosed += OnSceneClosed;
         }
 
         public bool IsSceneOpen(SceneSO scene) => IsSceneOpen(scene.GetScenePath());
@@ -38,7 +34,6 @@ namespace Xprees.SceneManagement.Editor
             return false;
         }
 
-
         private void InitScenesList()
         {
             scenePaths = GetAllScenePaths().ToArray();
@@ -49,13 +44,5 @@ namespace Xprees.SceneManagement.Editor
         private static IEnumerable<string> GetAllScenePaths() =>
             AssetDatabase.FindAssets($"t:{nameof(SceneSO)}")
                 .Select(AssetDatabase.GUIDToAssetPath);
-
-        private void OnSceneOpened(Scene scene, OpenSceneMode mode)
-        {
-        }
-
-        private void OnSceneClosed(Scene scene)
-        {
-        }
     }
 }
