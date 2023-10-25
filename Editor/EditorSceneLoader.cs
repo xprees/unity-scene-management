@@ -25,6 +25,15 @@ namespace Xprees.SceneManagement.Editor
                 EditorSceneManager.SaveModifiedScenesIfUserWantsTo(new[] { sceneByPath });
             }
 
+            var loadedSceneCount = SceneManager.sceneCount;
+            // Try to open initialization scene if no other scene is loaded
+            if (loadedSceneCount <= 1)
+            {
+                var initialScene = SceneManager.GetSceneByBuildIndex(0);
+                if (!initialScene.IsValid()) initialScene = SceneManager.GetSceneByPath("Assets/Scenes/Initialization.unity");
+                if (initialScene.IsValid()) EditorSceneManager.OpenScene(initialScene.path, OpenSceneMode.Single);
+            }
+
             EditorSceneManager.CloseScene(sceneByPath, true);
 
             lock (scene) scene.IsBeingProcessed = false;
