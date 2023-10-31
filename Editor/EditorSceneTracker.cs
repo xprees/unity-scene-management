@@ -23,6 +23,8 @@ namespace Xprees.SceneManagement.Editor
 
         private bool IsSceneOpen(string scenePath)
         {
+            if (scenePath == null) return false;
+
             for (var i = 0; i < SceneManager.sceneCount; i++)
             {
                 var currentScene = SceneManager.GetSceneAt(i);
