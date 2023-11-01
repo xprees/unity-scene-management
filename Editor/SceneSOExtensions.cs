@@ -19,7 +19,7 @@ namespace Xprees.SceneManagement.Editor
             var entry = settings.FindAssetEntry(scene.sceneReference.AssetGUID);
             if (entry != null) return AssetDatabase.GUIDToAssetPath(entry.guid);
 
-            Debug.LogError("Asset entry not found.");
+            Debug.LogWarning($"Asset entry for \"{scene.name}\" not found.");
             return null;
         }
     }

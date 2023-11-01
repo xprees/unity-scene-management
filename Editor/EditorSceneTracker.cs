@@ -19,7 +19,7 @@ namespace Xprees.SceneManagement.Editor
             InitScenesList();
         }
 
-        public bool IsSceneOpen(SceneSO scene) => IsSceneOpen(scene.GetScenePath());
+        public bool? IsSceneOpen(SceneSO scene) => IsSceneOpen(scene.GetScenePath());
 
         private bool IsSceneOpen(string scenePath)
         {
@@ -38,7 +38,11 @@ namespace Xprees.SceneManagement.Editor
         {
             scenePaths = GetAllScenePaths().ToArray();
             var scenes = scenePaths.Select(AssetDatabase.LoadAssetAtPath<SceneSO>);
-            scenesTracked = scenes.Select(scene => new Tuple<SceneSO, bool>(scene, IsSceneOpen(scene))).ToList();
+            scenesTracked = scenes
+                .Select(scene => new Tuple<SceneSO, bool?>(scene, IsSceneOpen(scene)))
+                .Where(tuple => tuple.Item2 != null)
+                .Select(tuple => new Tuple<SceneSO, bool>(tuple.Item1, tuple.Item2!.Value))
+                .ToList();
         }
 
         private static IEnumerable<string> GetAllScenePaths() =>

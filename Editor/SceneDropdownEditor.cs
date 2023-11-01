@@ -30,7 +30,10 @@ namespace Xprees.SceneManagement.Editor
 
                 foreach (var scene in sceneTracker.Scenes.OrderByDescending(scene => scene.sceneType))
                 {
-                    menu.AddItem(new GUIContent($"{scene.sceneName} ({scene.sceneType})"), sceneTracker.IsSceneOpen(scene), MenuFunction);
+                    var isSceneOpenOrPresent = sceneTracker.IsSceneOpen(scene);
+                    if (isSceneOpenOrPresent == null) continue;
+
+                    menu.AddItem(new GUIContent($"{scene.sceneName} ({scene.sceneType})"), isSceneOpenOrPresent!.Value, MenuFunction);
                     continue;
 
                     void MenuFunction() => ProcessScene(scene);
@@ -49,7 +52,7 @@ namespace Xprees.SceneManagement.Editor
 
         private static void ProcessScene(SceneSO scene)
         {
-            if (sceneTracker.IsSceneOpen(scene))
+            if (sceneTracker.IsSceneOpen(scene) ?? false)
             {
                 EditorSceneLoader.CloseScene(scene);
                 return;
