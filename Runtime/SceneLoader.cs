@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
@@ -74,9 +75,12 @@ namespace Xprees.SceneManagement
             loadGenericSceneEvent.onEventRaised -= LoadGenericScene;
         }
 
-        #region Scene Loading
-
-        private async UniTask<SceneInstance> LoadSceneAsync(SceneSO scene, bool showTransition, bool showLoading)
+        private async UniTask<SceneInstance> LoadSceneAsync(
+            SceneSO scene,
+            bool showTransition,
+            bool showLoading,
+            CancellationToken cancellationToken = default
+        )
         {
             lock (scene)
             {
@@ -94,7 +98,8 @@ namespace Xprees.SceneManagement
             if (showTransition) RaiseToggleTransitionEvent(true);
             if (showLoading) RaiseToggleLoadingIndicator(true);
 
-            var sceneInstance = await scene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true);
+            var sceneInstance = await scene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
+                .ToUniTask(cancellationToken: cancellationToken);
 
             lock (scene) scene.IsBeingProcessed = false;
             scene.IsLoaded = true;
@@ -127,8 +132,5 @@ namespace Xprees.SceneManagement
             isLoadingScene.Value = false;
             RaiseSceneUnloadedEvent(scene);
         }
-
-        #endregion
-
     }
 }

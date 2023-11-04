@@ -52,10 +52,10 @@ namespace Xprees.SceneManagement
             if (showLoading) RaiseToggleLoadingIndicator(false);
         }
 
-        private static void SetAsActiveScene(SceneInstance environment)
+        private static void SetAsActiveScene(SceneInstance scene)
         {
-            if (!environment.Scene.IsValid()) return;
-            SceneManager.SetActiveScene(environment.Scene);
+            if (!scene.Scene.IsValid()) return;
+            SceneManager.SetActiveScene(scene.Scene);
         }
 
         private async void LoadMenu(SceneSO scene, bool _, bool __)
@@ -66,7 +66,7 @@ namespace Xprees.SceneManagement
             RaiseToggleLoadingIndicator(true);
             await UniTask.Delay(defaultRenderDelayMillisecond);
 
-            var unloadGameplayScenesTask = UnloadGamePlayScenes();
+            var unloadGameplayScenesTask = UnloadGameplayScenes();
             var loadMenuTask = LoadSceneAsync(scene, true, true);
 
             await unloadGameplayScenesTask;
@@ -80,7 +80,7 @@ namespace Xprees.SceneManagement
             EnableUiInput();
         }
 
-        private UniTask UnloadGamePlayScenes()
+        private UniTask UnloadGameplayScenes()
         {
             if (scenesTracker == null || scenesTracker.LoadedScenes == null) return default;
 
@@ -114,7 +114,8 @@ namespace Xprees.SceneManagement
 
         private void RaiseSceneUnloadedEvent(SceneSO scene)
         {
-            if (sceneUnloadedEvent != null) sceneUnloadedEvent.RaiseEvent(scene, default, default);
+            if (sceneUnloadedEvent == null) return;
+            sceneUnloadedEvent.RaiseEvent(scene, default, default);
         }
 
         private bool IsSceneLoaded(SceneSO scene)
