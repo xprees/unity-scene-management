@@ -27,24 +27,17 @@ namespace Xprees.SceneManagement
             var loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
 
             var loadElevatorTask = default(UniTask<SceneInstance>);
-            if (showTransition)
-            {
-                DisableAllInput();
-                loadElevatorTask = LoadSceneAsync(elevatorScene, false, false);
-            }
+            if (showTransition) loadElevatorTask = LoadSceneAsync(elevatorScene, false, false);
 
             var loadEnvironmentTask = LoadSceneAsync(scene, false, false);
 
-            await loadGameplayTask;
-            await loadElevatorTask;
+            await UniTask.WhenAll(loadGameplayTask, loadElevatorTask);
 
             if (showTransition)
             {
                 RaiseToggleTransitionEvent(false);
                 await UniTask.Delay(defaultRenderDelayMillisecond);
             }
-
-            EnableGameplayInput(); // should be now safe to enable gameplay input as gameplay scene and elevator is loaded
 
             var environment = await loadEnvironmentTask;
             SetAsActiveScene(environment);
