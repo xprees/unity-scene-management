@@ -33,7 +33,6 @@ namespace Xprees.SceneManagement.Initialization
             await InitializeHandlers();
             await TriggerInitHandlers();
 
-
             await UnloadHandlers();
             await UnloadInitializationScene();
         }

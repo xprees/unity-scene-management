@@ -26,7 +26,9 @@ namespace Xprees.SceneManagement.ScriptableObjects
 
         public SceneInstance? sceneInstance;
 
-        private void Awake() => ResetRuntimeState();
+        private void OnEnable() => ResetRuntimeState();
+
+        private void OnDisable() => ResetRuntimeState();
 
         private void ResetRuntimeState()
         {
