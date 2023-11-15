@@ -59,7 +59,7 @@ namespace Xprees.SceneManagement.Initialization
         {
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            var unloadTasks = ActiveHandlers.Select(handler => handler.UnloadHandlerAsync(cancellationToken));
+            var unloadTasks = initializationHandlers.Select(handler => handler.UnloadHandlerAsync(cancellationToken));
 
             await UniTask.WhenAll(unloadTasks);
         }
@@ -70,6 +70,6 @@ namespace Xprees.SceneManagement.Initialization
             await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true);
         }
 
-        private async static UniTask UnloadInitializationScene() => await SceneManager.UnloadSceneAsync(0); // only scene in build settings
+        private async UniTask UnloadInitializationScene() => await SceneManager.UnloadSceneAsync(0); // only scene in build settings
     }
 }
