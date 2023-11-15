@@ -5,6 +5,7 @@
         // UI scenes
         UI,
         Menu,
+        VRMenu,
 
         // GamePlay scenes
         Environment,

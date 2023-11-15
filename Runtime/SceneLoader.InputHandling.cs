@@ -19,5 +19,10 @@
             if (enableUiInputEvent == null) return;
             enableUiInputEvent.RaiseEvent();
         }
+
+        private void EnableVRInput()
+        {
+            // TODO something to setup VR input
+        }
     }
 }

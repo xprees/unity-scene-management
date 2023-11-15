@@ -70,7 +70,15 @@ namespace Xprees.SceneManagement
             RaiseToggleTransitionEvent(false);
             await UniTask.Delay(defaultRenderDelayMillisecond);
 
-            EnableUiInput();
+            switch (scene.sceneType)
+            {
+                case SceneType.Menu:
+                    EnableUiInput();
+                    break;
+                case SceneType.VRMenu:
+                    EnableVRInput();
+                    break;
+            }
         }
 
         private UniTask UnloadGameplayScenes()
