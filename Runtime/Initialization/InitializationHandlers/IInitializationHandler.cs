@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Xprees.SceneManagement.Initialization
+namespace Xprees.SceneManagement.Initialization.InitializationHandlers
 {
     /// This interface defines the contract for initialization handlers.
     /// Their lifecycle is managed by InitializationLoader.

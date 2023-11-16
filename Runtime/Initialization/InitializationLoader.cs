@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using Xprees.SceneManagement.Initialization.InitializationHandlers;
 using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement.Initialization
@@ -26,14 +27,17 @@ namespace Xprees.SceneManagement.Initialization
             // Managers scene must be loaded first and in Awake
             // to have all PersistentManagers ready for calls from the other scripts on Start
             await LoadManagersScene();
+            CheckActiveHandlers();
         }
 
         private async void Start()
         {
             await InitializeHandlers();
+
             await TriggerInitHandlers();
 
             await UnloadHandlers();
+
             await UnloadInitializationScene();
         }
 
@@ -41,35 +45,51 @@ namespace Xprees.SceneManagement.Initialization
         {
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            var initTasks = initializationHandlers.Select(handler => handler.InitializeHandlerAsync(cancellationToken));
+            var initTasks = initializationHandlers
+                .Select(handler => handler.InitializeHandlerAsync(cancellationToken))
+                .ToList();
 
-            await UniTask.WhenAll(initTasks);
+            await UniTask.WhenAll(initTasks).SuppressCancellationThrow();
         }
 
         private async UniTask TriggerInitHandlers()
         {
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            var triggerTasks = ActiveHandlers.Select(handler => handler.TriggerInitializationAsync(cancellationToken));
+            var triggerTasks = ActiveHandlers
+                .Select(handler => handler.TriggerInitializationAsync(cancellationToken))
+                .ToList();
 
-            await UniTask.WhenAll(triggerTasks);
+            await UniTask.WhenAll(triggerTasks).SuppressCancellationThrow();
         }
 
         private async UniTask UnloadHandlers()
         {
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            var unloadTasks = initializationHandlers.Select(handler => handler.UnloadHandlerAsync(cancellationToken));
+            var unloadTasks = initializationHandlers
+                .Select(handler => handler.UnloadHandlerAsync(cancellationToken))
+                .ToList();
 
-            await UniTask.WhenAll(unloadTasks);
+            await UniTask.WhenAll(unloadTasks).SuppressCancellationThrow();
         }
 
         private async UniTask LoadManagersScene()
         {
             var managersScene = await managersSceneDataReference.LoadAssetAsync<SceneSO>();
             await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true);
+            await UniTask.WaitUntil(() => managersScene.sceneInstance.HasValue && managersScene.IsLoaded);
         }
 
-        private async UniTask UnloadInitializationScene() => await SceneManager.UnloadSceneAsync(0); // only scene in build settings
+        private async UniTask UnloadInitializationScene() => await SceneManager.UnloadSceneAsync(0).ToUniTask(); // only scene in build settings
+
+        private void CheckActiveHandlers()
+        {
+            if (!ActiveHandlers.Any())
+            {
+                Debug.LogWarning($"{nameof(InitializationLoader)} has {initializationHandlers.Count} initialization handlers. " +
+                                 $"Only {ActiveHandlers.Count()} are active.");
+            }
+        }
     }
 }

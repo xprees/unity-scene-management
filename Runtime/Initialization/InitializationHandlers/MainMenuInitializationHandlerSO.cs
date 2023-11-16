@@ -5,7 +5,7 @@ using UnityEngine.AddressableAssets;
 using Xprees.SceneManagement.Events.ScriptableObjects;
 using Xprees.SceneManagement.ScriptableObjects;
 
-namespace Xprees.SceneManagement.Initialization
+namespace Xprees.SceneManagement.Initialization.InitializationHandlers
 {
     [CreateAssetMenu(menuName = "CF/Scene Management/MainMenu Initializer", fileName = "MainMenuInitializationHandler")]
     public class MainMenuInitializationHandlerSO : AbstractInitializationHandlerSO
@@ -21,20 +21,29 @@ namespace Xprees.SceneManagement.Initialization
 
         public override async UniTask TriggerInitializationAsync(CancellationToken cancellationToken = default)
         {
-            await LoadMenu();
+            await LoadMenu(cancellationToken);
+            await WaitUntilMenuIsLoaded(cancellationToken);
         }
 
-        public override UniTask UnloadHandlerAsync(CancellationToken cancellationToken = default) => UniTask.CompletedTask;
-
-        private void OnDisable()
+        public override UniTask UnloadHandlerAsync(CancellationToken cancellationToken = default)
         {
+            _menuToLoad = null;
+            return UniTask.CompletedTask;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
             _menuToLoad = null;
         }
 
-        private async UniTask LoadMenu()
+        private async UniTask LoadMenu(CancellationToken cancellationToken = default)
         {
-            var loadMenuEventChannel = await loadMenuEventAssetReference.LoadAssetAsync<SceneEventChannelSO>();
-            _menuToLoad = await menuToLoadSceneDataReference.LoadAssetAsync<SceneSO>();
+            var loadMenuEventChannel = await loadMenuEventAssetReference.LoadAssetAsync<SceneEventChannelSO>()
+                .ToUniTask(cancellationToken: cancellationToken);
+            _menuToLoad = await menuToLoadSceneDataReference.LoadAssetAsync<SceneSO>()
+                .ToUniTask(cancellationToken: cancellationToken);
+
             RaiseLoadMenuEvent(loadMenuEventChannel, _menuToLoad);
         }
 
@@ -48,5 +57,10 @@ namespace Xprees.SceneManagement.Initialization
 
             loadMenuEventChannel.RaiseEvent(menuToLoad, true, false);
         }
+
+        private UniTask WaitUntilMenuIsLoaded(CancellationToken cancellationToken = default) =>
+            UniTask.WaitUntil(IsMenuLoaded, cancellationToken: cancellationToken).SuppressCancellationThrow();
+
+        private bool IsMenuLoaded() => _menuToLoad != null && _menuToLoad.IsLoaded && _menuToLoad.sceneInstance.HasValue;
     }
 }
