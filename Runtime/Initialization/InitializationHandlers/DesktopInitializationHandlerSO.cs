@@ -7,8 +7,8 @@ using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement.Initialization.InitializationHandlers
 {
-    [CreateAssetMenu(menuName = "CF/Scene Management/MainMenu Initializer", fileName = "MainMenuInitializationHandler")]
-    public class MainMenuInitializationHandlerSO : AbstractInitializationHandlerSO
+    [CreateAssetMenu(menuName = "CF/Initialization/Desktop Initializer", fileName = "DesktopInitializationHandler")]
+    public class DesktopInitializationHandlerSO : AbstractInitializationHandlerSO
     {
         [Header("Menu References")]
         [Tooltip("Asset reference to the menu sceneData (SceneSO)")]
