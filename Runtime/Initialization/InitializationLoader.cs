@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using Xprees.Events.ScriptableObjects.Base;
 using Xprees.SceneManagement.Initialization.InitializationHandlers;
 using Xprees.SceneManagement.ScriptableObjects;
 
@@ -17,8 +18,13 @@ namespace Xprees.SceneManagement.Initialization
         [Tooltip("Asset reference to the persistent managers sceneData (SceneSO)")]
         [SerializeField] private AssetReferenceT<SceneSO> managersSceneDataReference;
 
+        [Header("Listening to")]
+        [SerializeField] private AssetReferenceT<VoidEventChannelSO> startHandlersInitializationEventRef;
+
         [Header("Additional Initialization Handlers")]
         [SerializeField] private List<AbstractInitializationHandlerSO> initializationHandlers;
+
+        private VoidEventChannelSO _startHandlersInitializationEvent;
 
         private IEnumerable<AbstractInitializationHandlerSO> ActiveHandlers => initializationHandlers.Where(handler => handler.IsActive);
 
@@ -30,11 +36,13 @@ namespace Xprees.SceneManagement.Initialization
             CheckActiveHandlers();
         }
 
-        private async void Start()
+        private void OnDisable()
         {
-            // HOTFIX - TODO find better solution for this race condition (Start is called before managers scene is loaded and sceneLoader ready presumably because of async/await)
-            await UniTask.Delay(1500); // give it some time to load
+            _startHandlersInitializationEvent.onEventRaised -= StartHandlersInitialization;
+        }
 
+        private async void StartHandlersInitialization()
+        {
             await InitializeHandlers();
 
             await TriggerInitHandlers();
@@ -79,6 +87,8 @@ namespace Xprees.SceneManagement.Initialization
 
         private async UniTask LoadManagersScene()
         {
+            _startHandlersInitializationEvent = await startHandlersInitializationEventRef.LoadAssetAsync<VoidEventChannelSO>();
+            _startHandlersInitializationEvent.onEventRaised += StartHandlersInitialization;
             var managersScene = await managersSceneDataReference.LoadAssetAsync<SceneSO>();
             await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true);
             await UniTask.WaitUntil(() => managersScene.sceneInstance.HasValue && managersScene.IsLoaded);
