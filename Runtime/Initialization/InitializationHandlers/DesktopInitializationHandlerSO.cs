@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -10,12 +11,21 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
     [CreateAssetMenu(menuName = "CF/Initialization/Desktop Initializer", fileName = "DesktopInitializationHandler")]
     public class DesktopInitializationHandlerSO : AbstractInitializationHandlerSO
     {
-        [Header("Menu References")]
+        [Header("Scene References")]
         [Tooltip("Asset reference to the menu sceneData (SceneSO)")]
         [SerializeField] private AssetReferenceT<SceneSO> menuToLoadSceneDataReference;
 
+        [Space]
+        [Tooltip("Asset references to the any additional scenes to load for dektop mode.")]
+        [SerializeField] private List<AssetReferenceT<SceneSO>> additionalScenesToLoad;
+
         [Header("Broadcasting on")]
+        [Tooltip("Reference to the event raised when menu should be loaded.")]
         [SerializeField] private AssetReferenceT<SceneEventChannelSO> loadMenuEventAssetReference;
+
+        [Space]
+        [Tooltip("Reference to the event raised when additional scenes should be loaded.")]
+        [SerializeField] private AssetReferenceT<SceneEventChannelSO> loadAdditionalSceneEventReference;
 
         private SceneSO _menuToLoad;
 
@@ -23,6 +33,7 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
         {
             await LoadMenu(cancellationToken);
             await WaitUntilMenuIsLoaded(cancellationToken);
+            await LoadAdditionalScenes(cancellationToken);
         }
 
         public override UniTask UnloadHandlerAsync(CancellationToken cancellationToken = default)
@@ -45,6 +56,20 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
                 .ToUniTask(cancellationToken: cancellationToken);
 
             RaiseLoadMenuEvent(loadMenuEventChannel, _menuToLoad);
+        }
+
+        private async UniTask LoadAdditionalScenes(CancellationToken cancellationToken)
+        {
+            var loadAdditionalSceneEventChannel = await loadAdditionalSceneEventReference
+                .LoadAssetAsync<SceneEventChannelSO>().ToUniTask(cancellationToken: cancellationToken);
+
+            foreach (var sceneRef in additionalScenesToLoad)
+            {
+                var scene = await sceneRef.LoadAssetAsync<SceneSO>().ToUniTask(cancellationToken: cancellationToken);
+                RaiseLoadMenuEvent(loadAdditionalSceneEventChannel, scene);
+            }
+
+            // We don't need to wait for additional scenes to load - Don't care
         }
 
         private void RaiseLoadMenuEvent(SceneEventChannelSO loadMenuEventChannel, SceneSO menuToLoad)
