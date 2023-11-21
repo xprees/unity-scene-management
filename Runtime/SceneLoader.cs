@@ -44,6 +44,10 @@ namespace Xprees.SceneManagement
         [SerializeField] private SceneEventChannelSO loadGenericSceneEvent;
 
         [Header("Broadcasting on")]
+        [Tooltip("Event raised when SceneLoader is initilialized and ready to load scenes.")]
+        [SerializeField] private VoidEventChannelSO onLoaderReady;
+
+        [Space]
         [SerializeField] private VoidEventChannelSO onSceneReady;
 
         [SerializeField] private SceneEventChannelSO sceneLoadedEvent;
@@ -64,6 +68,8 @@ namespace Xprees.SceneManagement
             loadCameraEvent.onEventRaised += LoadCamera;
             loadPlayerSceneEvent.onEventRaised += LoadPlayerScene;
             loadGenericSceneEvent.onEventRaised += LoadGenericScene;
+
+            RaiseOnLoaderReady();
         }
 
         private void OnDisable()

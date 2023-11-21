@@ -142,6 +142,13 @@ namespace Xprees.SceneManagement
             toggleLoadingIndicator.RaiseEvent(value);
         }
 
+        private void RaiseOnLoaderReady()
+        {
+            if (onLoaderReady == null) return;
+            onLoaderReady.RaiseEvent();
+        }
+
+
         private void RaiseSceneReadyEvent(SceneSO scene)
         {
             if (onSceneReady != null) onSceneReady.RaiseEvent();
