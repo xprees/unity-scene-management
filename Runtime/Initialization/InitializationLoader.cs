@@ -32,6 +32,9 @@ namespace Xprees.SceneManagement.Initialization
 
         private async void Start()
         {
+            // HOTFIX - TODO find better solution for this race condition (Start is called before managers scene is loaded and sceneLoader ready presumably because of async/await)
+            await UniTask.Delay(1500); // give it some time to load
+
             await InitializeHandlers();
 
             await TriggerInitHandlers();
