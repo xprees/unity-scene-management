@@ -32,7 +32,8 @@ namespace Xprees.SceneManagement.Initialization
         {
             // Managers scene must be loaded first and in Awake
             // to have all PersistentManagers ready for calls from the other scripts on Start
-            await LoadManagersScene();
+            await LoadManagersScene()
+                .SuppressCancellationThrow();
             CheckActiveHandlers();
         }
 
@@ -87,11 +88,20 @@ namespace Xprees.SceneManagement.Initialization
 
         private async UniTask LoadManagersScene()
         {
-            _startHandlersInitializationEvent = await startHandlersInitializationEventRef.LoadAssetAsync<VoidEventChannelSO>();
+            var cancellationToken = this.GetCancellationTokenOnDestroy();
+
+            _startHandlersInitializationEvent = await startHandlersInitializationEventRef.LoadAssetAsync<VoidEventChannelSO>()
+                .ToUniTask(cancellationToken: cancellationToken);
+
             _startHandlersInitializationEvent.onEventRaised += StartHandlersInitialization;
-            var managersScene = await managersSceneDataReference.LoadAssetAsync<SceneSO>();
-            await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true);
-            await UniTask.WaitUntil(() => managersScene.sceneInstance.HasValue && managersScene.IsLoaded);
+
+            var managersScene = await managersSceneDataReference.LoadAssetAsync<SceneSO>()
+                .ToUniTask(cancellationToken: cancellationToken);
+
+            await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
+                .ToUniTask(cancellationToken: cancellationToken);
+
+            await UniTask.WaitUntil(() => managersScene.sceneInstance.HasValue && managersScene.IsLoaded, cancellationToken: cancellationToken);
         }
 
         private async UniTask UnloadInitializationScene() => await SceneManager.UnloadSceneAsync(0).ToUniTask(); // only scene in build settings
