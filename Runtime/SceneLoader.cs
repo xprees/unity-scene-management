@@ -29,6 +29,8 @@ namespace Xprees.SceneManagement
         [SerializeField] private BoolReference isLoadingScene;
 
         [Header("Utility Scene references")]
+        [SerializeField] private BoolReference useElevatorScene = new(true);
+
         [Tooltip("Scene used while loading environment scene.")]
         [SerializeField] private SceneSO elevatorScene;
 

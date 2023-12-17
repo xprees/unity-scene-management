@@ -27,7 +27,10 @@ namespace Xprees.SceneManagement
             var loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
 
             var loadElevatorTask = default(UniTask<SceneInstance>);
-            if (showTransition) loadElevatorTask = LoadSceneAsync(elevatorScene, false, false);
+            if (showTransition && useElevatorScene)
+            {
+                loadElevatorTask = LoadSceneAsync(elevatorScene, false, false);
+            }
 
             var loadEnvironmentTask = LoadSceneAsync(scene, false, false);
 
@@ -147,7 +150,6 @@ namespace Xprees.SceneManagement
             if (onLoaderReady == null) return;
             onLoaderReady.RaiseEvent();
         }
-
 
         private void RaiseSceneReadyEvent(SceneSO scene)
         {
