@@ -34,6 +34,7 @@ namespace Xprees.SceneManagement
         [Tooltip("Scene used while loading environment scene.")]
         [SerializeField] private SceneSO elevatorScene;
 
+        [SerializeField] private BoolReference loadGameplayScene = new(true);
         [SerializeField] private SceneSO gameplayScene;
 
         [Header("Listening to")]

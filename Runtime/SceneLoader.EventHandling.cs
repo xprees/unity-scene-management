@@ -23,8 +23,9 @@ namespace Xprees.SceneManagement
 
             if (showLoading) RaiseToggleLoadingIndicator(true);
 
-            // Try to load gameplay scene -> if it's already loaded, it will be skipped
-            var loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
+            var loadGameplayTask = default(UniTask<SceneInstance>);
+            // Try to load gameplay scene if needed -> if it's already loaded, it will be skipped
+            if (loadGameplayScene) loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
 
             var loadElevatorTask = default(UniTask<SceneInstance>);
             if (showTransition && useElevatorScene)
