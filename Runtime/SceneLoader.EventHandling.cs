@@ -2,6 +2,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using Xprees.SceneManagement.Extensions;
 using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement
@@ -44,7 +45,7 @@ namespace Xprees.SceneManagement
             }
 
             var environment = await loadEnvironmentTask;
-            SetAsActiveScene(environment);
+            environment.SetAsActiveScene();
 
             if (showLoading) RaiseToggleLoadingIndicator(false);
         }
@@ -68,7 +69,7 @@ namespace Xprees.SceneManagement
 
             await unloadGameplayScenesTask;
             var menu = await loadMenuTask;
-            SetAsActiveScene(menu);
+            menu.SetAsActiveScene();
 
             RaiseToggleLoadingIndicator(false);
             RaiseToggleTransitionEvent(false);
