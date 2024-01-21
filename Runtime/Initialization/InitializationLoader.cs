@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 using Xprees.Events.ScriptableObjects.Base;
+using Xprees.SceneManagement.Extensions;
 using Xprees.SceneManagement.Initialization.InitializationHandlers;
 using Xprees.SceneManagement.ScriptableObjects;
 
@@ -98,8 +99,10 @@ namespace Xprees.SceneManagement.Initialization
             var managersScene = await managersSceneDataReference.LoadAssetAsync<SceneSO>()
                 .ToUniTask(cancellationToken: cancellationToken);
 
-            await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
+            var managersSceneInstance = await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
                 .ToUniTask(cancellationToken: cancellationToken);
+            // Set as active to make sure if there any created objects they are in the right scene and initialization scene
+            managersSceneInstance.SetAsActiveScene();
 
             await UniTask.WaitUntil(() => managersScene.sceneInstance.HasValue && managersScene.IsLoaded, cancellationToken: cancellationToken);
         }
