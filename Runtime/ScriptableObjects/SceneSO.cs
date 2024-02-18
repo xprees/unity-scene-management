@@ -2,7 +2,7 @@
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using Xprees.Core;
-using Xprees.EditorTools.Attributes.ReadOnlyAttribute;
+using Xprees.EditorTools.Attributes.ReadOnly;
 
 namespace Xprees.SceneManagement.ScriptableObjects
 {

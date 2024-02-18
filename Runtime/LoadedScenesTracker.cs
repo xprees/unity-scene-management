@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Xprees.EditorTools.Attributes.ReadOnlyAttribute;
+using Xprees.EditorTools.Attributes.ReadOnly;
 using Xprees.SceneManagement.Events.ScriptableObjects;
 using Xprees.SceneManagement.ScriptableObjects;
 
