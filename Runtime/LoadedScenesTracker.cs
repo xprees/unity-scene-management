@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Xprees.EditorTools.Attributes.ReadOnly;
 using Xprees.SceneManagement.Events.ScriptableObjects;

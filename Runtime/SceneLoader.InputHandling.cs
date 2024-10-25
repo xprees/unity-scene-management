@@ -1,4 +1,4 @@
-﻿namespace Xprees.SceneManagement
+namespace Xprees.SceneManagement
 {
     public partial class SceneLoader
     {

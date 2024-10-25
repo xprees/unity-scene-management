@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;

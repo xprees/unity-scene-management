@@ -1,4 +1,4 @@
-﻿using UnityEditor.SceneManagement;
+using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.ScriptableObjects;
 
