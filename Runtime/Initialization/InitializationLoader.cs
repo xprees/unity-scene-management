@@ -57,7 +57,7 @@ namespace Xprees.SceneManagement.Initialization
 
             await UnloadHandlers(token);
 
-            await UnloadInitializationScene(token);
+            UnloadInitializationScene().Forget(); // Will also unload this script we don't need to wait for that :-)
         }
 
         private async UniTask InitializeHandlers(CancellationToken cancellationToken)
@@ -108,8 +108,7 @@ namespace Xprees.SceneManagement.Initialization
             bool IsManagersSceneReady() => managersScene.sceneInstance.HasValue && managersScene.IsLoaded;
         }
 
-        private async UniTask UnloadInitializationScene(CancellationToken cancellationToken) =>
-            await SceneManager.UnloadSceneAsync(0).WithCancellation(cancellationToken); // only scene in build settings
+        private UniTask UnloadInitializationScene() => SceneManager.UnloadSceneAsync(0).ToUniTask(); // only scene in build settings
 
         private void CheckActiveHandlers()
         {
