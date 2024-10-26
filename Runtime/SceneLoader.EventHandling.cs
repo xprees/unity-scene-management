@@ -24,9 +24,16 @@ namespace Xprees.SceneManagement
 
             if (showLoading) RaiseToggleLoadingIndicator(true);
 
-            var loadGameplayTask = default(UniTask<SceneInstance>);
             // Try to load gameplay scene if needed -> if it's already loaded, it will be skipped
-            if (loadGameplayScene) loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
+            var loadGameplayTask = default(UniTask<SceneInstance>);
+            if (!loadVRGameplayScene)
+            {
+                loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
+            }
+            else if (VRGameplayScene != null)
+            {
+                loadGameplayTask = LoadSceneAsync(VRGameplayScene, false, false);
+            }
 
             var loadElevatorTask = default(UniTask<SceneInstance>);
             if (showTransition && useElevatorScene)
@@ -36,12 +43,13 @@ namespace Xprees.SceneManagement
 
             var loadEnvironmentTask = LoadSceneAsync(scene, false, false);
 
-            await UniTask.WhenAll(loadGameplayTask, loadElevatorTask);
+            await UniTask.WhenAll(loadGameplayTask, loadElevatorTask)
+                .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
 
             if (showTransition)
             {
                 RaiseToggleTransitionEvent(false);
-                await UniTask.Delay(defaultRenderDelayMillisecond);
+                await UniTask.Delay(defaultRenderDelayMillisecond, cancellationToken: this.GetCancellationTokenOnDestroy());
             }
 
             var environment = await loadEnvironmentTask;
@@ -106,17 +114,18 @@ namespace Xprees.SceneManagement
                 .Concat(playerScenes)
                 .Where(scene => scene != null);
 
-            return UniTask.WhenAll(unloadScenes.Select(UnLoadSceneAsync));
+            return UniTask.WhenAll(unloadScenes.Select(UnLoadSceneAsync))
+                .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
         }
 
         private async void LoadCamera(SceneSO scene, bool _, bool __) =>
-            await LoadSceneAsync(scene, false, false);
+            await LoadSceneAsync(scene, false, false, this.GetCancellationTokenOnDestroy());
 
         private async void LoadPlayerScene(SceneSO scene, bool _, bool __) =>
-            await LoadSceneAsync(scene, false, false);
+            await LoadSceneAsync(scene, false, false, this.GetCancellationTokenOnDestroy());
 
         private async void LoadGenericScene(SceneSO scene, bool showTransition, bool showLoading) =>
-            await LoadSceneAsync(scene, showTransition, showLoading);
+            await LoadSceneAsync(scene, showTransition, showLoading, this.GetCancellationTokenOnDestroy());
 
         private void RaiseSceneUnloadedEvent(SceneSO scene)
         {

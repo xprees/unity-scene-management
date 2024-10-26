@@ -34,8 +34,14 @@ namespace Xprees.SceneManagement
         [Tooltip("Scene used while loading environment scene.")]
         [SerializeField] private SceneSO elevatorScene;
 
-        [SerializeField] private BoolReference loadGameplayScene = new(true);
+        [Space]
+        [SerializeField] private BoolReference loadVRGameplayScene = new(true);
+
         [SerializeField] private SceneSO gameplayScene;
+
+        // ReSharper disable once InconsistentNaming
+        [Tooltip("Optional")]
+        [SerializeField] private SceneSO VRGameplayScene;
 
         [Header("Listening to")]
         [SerializeField] private SceneEventChannelSO unloadSceneEvent;
@@ -47,7 +53,7 @@ namespace Xprees.SceneManagement
         [SerializeField] private SceneEventChannelSO loadGenericSceneEvent;
 
         [Header("Broadcasting on")]
-        [Tooltip("Event raised when SceneLoader is initilialized and ready to load scenes.")]
+        [Tooltip("Event raised when SceneLoader is initialized and ready to load scenes.")]
         [SerializeField] private VoidEventChannelSO onLoaderReady;
 
         [Space]
