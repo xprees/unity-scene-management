@@ -13,9 +13,9 @@
     "com.marijnzwemmer.unity-toolbar-extender": "1.4.2",
     "com.dbrizov.naughtyattributes": "2.1.4",
     "cz.xprees.core": "1.0.31",
-    "cz.xprees.variables": "1.0.6",
-    "cz.xprees.events": "1.0.5",
-    "cz.xprees.editor-tools": "1.0.7"
+    "cz.xprees.variables": "1.0.7",
+    "cz.xprees.events": "1.0.6",
+    "cz.xprees.editor-tools": "1.0.8"
   },
   "keywords": [
     "Scenes",
