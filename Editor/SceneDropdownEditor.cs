@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityToolbarExtender;
 using Xprees.SceneManagement.ScriptableObjects;
@@ -28,10 +29,22 @@ namespace Xprees.SceneManagement.Editor
             {
                 var menu = new GenericMenu();
 
+                var isLoadedInitScene = EditorSceneLoader.IsLoadedInitScene;
+                menu.AddItem(new GUIContent("Load Init Scene"), isLoadedInitScene,
+                    () => EditorSceneLoader.LoadInitializationScene(OpenSceneMode.Additive));
+                menu.AddSeparator("");
+
+                var previewSceneType = SceneType.PersistentManagers;
                 foreach (var scene in sceneTracker.Scenes.OrderByDescending(scene => scene.sceneType))
                 {
                     var isSceneOpenOrPresent = sceneTracker.IsSceneOpen(scene);
                     if (isSceneOpenOrPresent == null) continue;
+
+                    if (scene.sceneType != previewSceneType)
+                    {
+                        previewSceneType = scene.sceneType;
+                        menu.AddSeparator("");
+                    }
 
                     menu.AddItem(new GUIContent($"{scene.sceneName} ({scene.sceneType})"), isSceneOpenOrPresent!.Value, MenuFunction);
                     continue;
