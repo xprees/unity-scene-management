@@ -1,6 +1,8 @@
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.ScriptableObjects;
 
@@ -13,6 +15,8 @@ namespace Xprees.SceneManagement.Editor
 
         public static bool IsLoadedInitScene => SceneManager.GetSceneByPath(initScenePath).isLoaded;
 
+        private static bool IsInPlayMode => EditorApplication.isPlaying;
+
         static EditorSceneLoader()
         {
             initScenePath = FindInitScenePath();
@@ -22,7 +26,14 @@ namespace Xprees.SceneManagement.Editor
         {
             lock (scene) scene.IsBeingProcessed = true;
 
-            EditorSceneManager.OpenScene(scene.GetScenePath(), OpenSceneMode.Additive);
+            if (IsInPlayMode)
+            {
+                // TODO handle playmode
+            }
+            else
+            {
+                EditorSceneManager.OpenScene(scene.GetScenePath(), OpenSceneMode.Additive);
+            }
 
             lock (scene) scene.IsBeingProcessed = false;
             scene.IsLoaded = true;
@@ -42,7 +53,8 @@ namespace Xprees.SceneManagement.Editor
             if (loadedSceneCount <= 1)
             {
                 var initialScene = SceneManager.GetSceneByBuildIndex(0);
-                if (!initialScene.IsValid()) initialScene = SceneManager.GetSceneByPath("Assets/Scenes/Initialization.unity");
+                if (!initialScene.IsValid()) initialScene = SceneManager.GetSceneByPath(initScenePath);
+                // TODO handle PlayMode
                 if (initialScene.IsValid()) EditorSceneManager.OpenScene(initialScene.path, OpenSceneMode.Single);
             }
 
@@ -52,25 +64,39 @@ namespace Xprees.SceneManagement.Editor
             scene.IsLoaded = false;
         }
 
-        public static void ToggleLoadOrUnloadInitScene(OpenSceneMode mode = OpenSceneMode.Single)
+        public async static UniTask ToggleLoadOrUnloadInitScene(OpenSceneMode mode = OpenSceneMode.Single)
         {
             if (IsLoadedInitScene)
             {
-                UnloadInitScene();
+                await UnloadInitScene();
                 return;
             }
 
-            LoadInitScene(mode);
+            await LoadInitScene(mode);
         }
 
-        public static void UnloadInitScene()
+        public static async UniTask UnloadInitScene()
         {
             var initSceneManagerPath = SceneManager.GetSceneByPath(initScenePath);
+            if (IsInPlayMode)
+            {
+                await SceneManager.UnloadSceneAsync(initSceneManagerPath);
+                return;
+            }
+
             EditorSceneManager.CloseScene(initSceneManagerPath, true);
         }
 
-        public static void LoadInitScene(OpenSceneMode mode)
+        public async static UniTask LoadInitScene(OpenSceneMode mode)
         {
+            if (IsInPlayMode)
+            {
+                var initScene = SceneManager.GetSceneByPath(initScenePath);
+                var loadSceneMode = mode == OpenSceneMode.Single ? LoadSceneMode.Single : LoadSceneMode.Additive;
+                await SceneManager.LoadSceneAsync(initScene.name, loadSceneMode);
+                return;
+            }
+
             var scene = EditorSceneManager.OpenScene(initScenePath, mode);
             SceneManager.SetActiveScene(scene);
 
