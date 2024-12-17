@@ -31,7 +31,13 @@ namespace Xprees.SceneManagement.Editor
 
                 var isLoadedInitScene = EditorSceneLoader.IsLoadedInitScene;
                 menu.AddItem(new GUIContent("Load Init Scene"), isLoadedInitScene,
-                    () => EditorSceneLoader.LoadInitializationScene(OpenSceneMode.Additive));
+                    () => EditorSceneLoader.ToggleLoadOrUnloadInitScene(OpenSceneMode.Additive));
+
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("Unload all scenes (except init)"), false, UnloadAllScenesExceptInit);
+                menu.AddSeparator("");
+
+                menu.AddDisabledItem(new GUIContent("Scenes"));
                 menu.AddSeparator("");
 
                 var previewSceneType = SceneType.PersistentManagers;
@@ -56,6 +62,15 @@ namespace Xprees.SceneManagement.Editor
             }
 
             GUILayout.FlexibleSpace();
+        }
+
+        private static void UnloadAllScenesExceptInit()
+        {
+            var scenes = sceneTracker.Scenes.Where(scene => scene.sceneType != SceneType.Initialization).ToList();
+            foreach (var scene in scenes.Where(scene => sceneTracker.IsSceneOpen(scene) ?? false))
+            {
+                EditorSceneLoader.CloseScene(scene);
+            }
         }
 
         private static GUIContent GetTitle() =>

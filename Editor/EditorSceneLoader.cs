@@ -52,14 +52,31 @@ namespace Xprees.SceneManagement.Editor
             scene.IsLoaded = false;
         }
 
-        public static void LoadInitializationScene(OpenSceneMode mode = OpenSceneMode.Single)
+        public static void ToggleLoadOrUnloadInitScene(OpenSceneMode mode = OpenSceneMode.Single)
         {
-            EditorSceneManager.OpenScene(initScenePath, mode);
-            var initSceneManagerPath = SceneManager.GetSceneByPath(initScenePath);
-            SceneManager.SetActiveScene(initSceneManagerPath);
+            if (IsLoadedInitScene)
+            {
+                UnloadInitScene();
+                return;
+            }
 
+            LoadInitScene(mode);
+        }
+
+        public static void UnloadInitScene()
+        {
+            var initSceneManagerPath = SceneManager.GetSceneByPath(initScenePath);
+            EditorSceneManager.CloseScene(initSceneManagerPath, true);
+        }
+
+        public static void LoadInitScene(OpenSceneMode mode)
+        {
+            var scene = EditorSceneManager.OpenScene(initScenePath, mode);
+            SceneManager.SetActiveScene(scene);
+
+            // Move initialization scene to the top of the hierarchy
             var fstScene = SceneManager.GetSceneAt(0);
-            EditorSceneManager.MoveSceneBefore(initSceneManagerPath, fstScene);
+            EditorSceneManager.MoveSceneBefore(scene, fstScene);
         }
 
         private static string FindInitScenePath()
