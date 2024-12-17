@@ -91,9 +91,8 @@ namespace Xprees.SceneManagement.Editor
         {
             if (IsInPlayMode)
             {
-                var initScene = SceneManager.GetSceneByPath(initScenePath);
                 var loadSceneMode = mode == OpenSceneMode.Single ? LoadSceneMode.Single : LoadSceneMode.Additive;
-                await SceneManager.LoadSceneAsync(initScene.name, loadSceneMode);
+                await SceneManager.LoadSceneAsync(0, loadSceneMode); // Initialization scene is always at index 0
                 return;
             }
 

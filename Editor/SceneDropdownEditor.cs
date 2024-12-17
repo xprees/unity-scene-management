@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityToolbarExtender;
+using Xprees.SceneManagement.Editor.Initialization;
 using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement.Editor
@@ -31,7 +32,11 @@ namespace Xprees.SceneManagement.Editor
 
                 var isLoadedInitScene = EditorSceneLoader.IsLoadedInitScene;
                 menu.AddItem(new GUIContent("Load Init Scene"), isLoadedInitScene,
-                    () => EditorSceneLoader.ToggleLoadOrUnloadInitScene(OpenSceneMode.Additive));
+                    async () => await EditorSceneLoader.ToggleLoadOrUnloadInitScene(OpenSceneMode.Additive));
+
+                var editorInitializationActive = EditorInitializationLoader.Active;
+                menu.AddItem(new GUIContent("Editor PlayMode Init (Normally on)"), editorInitializationActive,
+                    () => EditorInitializationLoader.Active = !editorInitializationActive);
 
                 menu.AddSeparator("");
                 menu.AddItem(new GUIContent("Unload all scenes (except init)"), false, UnloadAllScenesExceptInit);
@@ -64,8 +69,14 @@ namespace Xprees.SceneManagement.Editor
             GUILayout.FlexibleSpace();
         }
 
-        private static void UnloadAllScenesExceptInit()
+        private async static void UnloadAllScenesExceptInit()
         {
+            if (!EditorSceneLoader.IsLoadedInitScene)
+            {
+                await EditorSceneLoader.LoadInitScene(OpenSceneMode.Single);
+                return;
+            }
+
             var scenes = sceneTracker.Scenes.Where(scene => scene.sceneType != SceneType.Initialization).ToList();
             foreach (var scene in scenes.Where(scene => sceneTracker.IsSceneOpen(scene) ?? false))
             {

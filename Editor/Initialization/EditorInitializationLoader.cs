@@ -9,6 +9,18 @@ namespace Xprees.SceneManagement.Editor.Initialization
     [InitializeOnLoad]
     public static class EditorInitializationLoader
     {
+        private static bool active = true;
+
+        public static bool Active
+        {
+            get => active;
+            set
+            {
+                active = value;
+                EditorPrefs.SetBool("EditorInitializationLoader.Active", value);
+            }
+        }
+
         /// Invoked after entering play mode and initializing the scenes for play mode
         public static event Action EditorPlayModeInitialized;
 
@@ -17,12 +29,15 @@ namespace Xprees.SceneManagement.Editor.Initialization
 
         static EditorInitializationLoader()
         {
+            Active = EditorPrefs.GetBool("EditorInitializationLoader.Active", true);
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
 
         private async static void OnPlayModeChanged(PlayModeStateChange change)
         {
+            if (!Active) return;
+
             switch (change)
             {
                 case PlayModeStateChange.EnteredEditMode:
@@ -42,7 +57,6 @@ namespace Xprees.SceneManagement.Editor.Initialization
 
         private async static UniTask OnEnterPlayMode()
         {
-            // TODO save currently opened scenes - necessary?
             await EditorSceneLoader.LoadInitScene(OpenSceneMode.Single); // Single unloads all other scenes
             await UniTask.DelayFrame(2);
             EditorPlayModeInitialized?.Invoke();
@@ -50,9 +64,6 @@ namespace Xprees.SceneManagement.Editor.Initialization
 
         private static UniTask OnExitPlayMode()
         {
-            Debug.Log("Exiting play mode");
-            // TODO load previously opened scenes - might be unnecessary (done automatically)
-            //  Cleanup if needed? 
             EditorPlayModeTeardown?.Invoke();
             return UniTask.CompletedTask;
         }
