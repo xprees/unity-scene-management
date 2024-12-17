@@ -28,7 +28,7 @@ namespace Xprees.SceneManagement.Editor
 
             if (IsInPlayMode)
             {
-                // TODO handle playmode
+                SceneManager.LoadScene(scene.GetScenePath(), LoadSceneMode.Additive);
             }
             else
             {
@@ -54,8 +54,14 @@ namespace Xprees.SceneManagement.Editor
             {
                 var initialScene = SceneManager.GetSceneByBuildIndex(0);
                 if (!initialScene.IsValid()) initialScene = SceneManager.GetSceneByPath(initScenePath);
-                // TODO handle PlayMode
-                if (initialScene.IsValid()) EditorSceneManager.OpenScene(initialScene.path, OpenSceneMode.Single);
+                if (initialScene.IsValid() && EditorApplication.isPlaying)
+                {
+                    SceneManager.LoadScene(0, LoadSceneMode.Single);
+                }
+                else if (initialScene.IsValid())
+                {
+                    EditorSceneManager.OpenScene(initialScene.path, OpenSceneMode.Single);
+                }
             }
 
             EditorSceneManager.CloseScene(sceneByPath, true);
