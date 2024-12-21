@@ -97,10 +97,8 @@ namespace Xprees.SceneManagement.Initialization
             var managersScene = await managersSceneDataReference.LoadAssetAsync<SceneSO>()
                 .ToUniTask(cancellationToken: cancellationToken);
 
-            var managersSceneInstance = await managersScene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
-                .ToUniTask(cancellationToken: cancellationToken);
             // Set as active to make sure if there are any created objects they are in the right scene and initialization scene
-            managersSceneInstance.SetAsActiveScene();
+            await LoadSceneIfNotProcessed(managersScene, true, LoadSceneMode.Additive, cancellationToken);
 
             await UniTask.WaitUntil(IsManagersSceneReady, cancellationToken: cancellationToken);
             return;
@@ -117,6 +115,25 @@ namespace Xprees.SceneManagement.Initialization
                 Debug.LogWarning($"{nameof(InitializationLoader)} has {initializationHandlers.Count} initialization handlers. " +
                                  $"Only {ActiveHandlers.Count()} are active.");
             }
+        }
+
+        private async UniTask LoadSceneIfNotProcessed(
+            SceneSO scene,
+            bool setActive = false,
+            LoadSceneMode loadMode = LoadSceneMode.Additive,
+            CancellationToken token = default
+        )
+        {
+            if (scene.IsBeingProcessed || scene.IsLoaded) return;
+
+            scene.SetAsProcessed(true);
+            var sceneInstance = await scene.sceneReference
+                .LoadSceneAsync(loadMode, true)
+                .ToUniTask(cancellationToken: token);
+
+            if (setActive) sceneInstance.SetAsActiveScene();
+
+            scene.SetAsProcessed(false);
         }
     }
 }
