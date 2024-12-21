@@ -62,7 +62,7 @@ namespace Xprees.SceneManagement.Initialization
 
         private async UniTask InitializeHandlers(CancellationToken cancellationToken)
         {
-            var initTasks = initializationHandlers
+            var initTasks = initializationHandlers // Initialize all handlers - some need to initialize to decide if they are active 
                 .Select(handler => handler.InitializeHandlerAsync(cancellationToken))
                 .ToList();
 
