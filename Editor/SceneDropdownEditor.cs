@@ -30,6 +30,9 @@ namespace Xprees.SceneManagement.Editor
             {
                 var menu = new GenericMenu();
 
+                menu.AddItem(new GUIContent("Refresh"), false, sceneTracker.RefreshList);
+                menu.AddSeparator("");
+
                 var isLoadedInitScene = EditorSceneLoader.IsLoadedInitScene;
                 menu.AddItem(new GUIContent("Load Init Scene"), isLoadedInitScene,
                     async () => await EditorSceneLoader.ToggleLoadOrUnloadInitScene(OpenSceneMode.Additive));
@@ -55,6 +58,13 @@ namespace Xprees.SceneManagement.Editor
                     {
                         previewSceneType = scene.sceneType;
                         menu.AddSeparator("");
+                    }
+
+                    var hasValidSceneReference = scene.HasValidSceneReference();
+                    if (!hasValidSceneReference)
+                    {
+                        menu.AddDisabledItem(new GUIContent($"{scene.sceneName} ({scene.sceneType}) - Invalid Scene!"));
+                        continue;
                     }
 
                     menu.AddItem(new GUIContent($"{scene.sceneName} ({scene.sceneType})"), isSceneOpenOrPresent!.Value, MenuFunction);

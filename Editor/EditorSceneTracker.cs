@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine.SceneManagement;
+using Xprees.Core;
 using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement.Editor
 {
-    public class EditorSceneTracker
+    public class EditorSceneTracker : IResettable
     {
         private string[] scenePaths;
         private List<Tuple<SceneSO, bool>> scenesTracked;
@@ -16,6 +17,12 @@ namespace Xprees.SceneManagement.Editor
 
         public EditorSceneTracker()
         {
+            InitScenesList();
+        }
+
+        public void RefreshList()
+        {
+            ResetState();
             InitScenesList();
         }
 
@@ -48,5 +55,11 @@ namespace Xprees.SceneManagement.Editor
         private static IEnumerable<string> GetAllScenePaths() =>
             AssetDatabase.FindAssets($"t:{nameof(SceneSO)}")
                 .Select(AssetDatabase.GUIDToAssetPath);
+
+        public void ResetState()
+        {
+            scenePaths = Array.Empty<string>();
+            scenesTracked = new List<Tuple<SceneSO, bool>>();
+        }
     }
 }
