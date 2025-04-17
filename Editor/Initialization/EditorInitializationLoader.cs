@@ -9,6 +9,7 @@ namespace Xprees.SceneManagement.Editor.Initialization
     [InitializeOnLoad]
     public static class EditorInitializationLoader
     {
+        private const string initActivePrefsKey = "EditorInitializationLoader.Active";
         private static bool active = true;
 
         public static bool Active
@@ -17,7 +18,7 @@ namespace Xprees.SceneManagement.Editor.Initialization
             set
             {
                 active = value;
-                EditorPrefs.SetBool("EditorInitializationLoader.Active", value);
+                EditorPrefs.SetBool(initActivePrefsKey, value);
             }
         }
 
@@ -29,7 +30,7 @@ namespace Xprees.SceneManagement.Editor.Initialization
 
         static EditorInitializationLoader()
         {
-            Active = EditorPrefs.GetBool("EditorInitializationLoader.Active", true);
+            Active = EditorPrefs.GetBool(initActivePrefsKey, true);
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
