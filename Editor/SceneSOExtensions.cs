@@ -22,8 +22,8 @@ namespace Xprees.SceneManagement.Editor
             // Not added to addressables, yet?
             if (entry == null)
             {
-                Debug.LogWarning($"AddressableAssetEntry for \"{scene.sceneName}\" not found.");
-                return null;
+                // Try to fall back to the scene reference itself
+                return AssetDatabase.GUIDToAssetPath(scene.sceneReference.AssetGUID);
             }
 
             return AssetDatabase.GUIDToAssetPath(entry.guid);
@@ -44,8 +44,9 @@ namespace Xprees.SceneManagement.Editor
             // Not added to addressables, yet?
             if (entry == null)
             {
-                Debug.LogWarning($"AddressableAssetEntry for \"{scene.sceneName}\" not found.");
-                return false;
+                var hasValidSceneReference = AssetDatabase.GUIDToAssetPath(scene.sceneReference.AssetGUID) != null;
+                if (!hasValidSceneReference) Debug.LogWarning($"AddressableAssetEntry for \"{scene.sceneName}\" not found.");
+                return hasValidSceneReference;
             }
 
             return AssetDatabase.GUIDToAssetPath(entry.guid) != null;
