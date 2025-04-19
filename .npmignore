@@ -1,4 +1,5 @@
 ﻿# Ignore files and directories that should not be included in the npm package
+.npmignore
 
 # IDEs
 .idea
