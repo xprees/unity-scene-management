@@ -1,0 +1,13 @@
+﻿# Ignore files and directories that should not be included in the npm package
+
+# IDEs
+.idea
+.vscode
+.vs
+.fleet
+
+# Gitlab, GitHub
+.git
+.gitignore
+.gitlab-ci.yml
+.github
