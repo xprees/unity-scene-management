@@ -5,7 +5,7 @@
   "description": "Scene Management package for multi-scene workflow. Adds wrapper for addressable scenes and provides event-driven scene loader.",
   "unity": "2021.3",
   "unityRelease": "16f1",
-  "licensesUrl": "http://www.wtfpl.net/txt/copying/",
+  "license": "Apache-2.0",
   "category": "Tool",
   "dependencies": {
     "com.unity.addressables": "1.21.9",
