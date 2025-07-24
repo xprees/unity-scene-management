@@ -20,14 +20,24 @@ Install the package using npm scoped registry in `Project Settings > Package Man
 
 ```json
 {
-    "name": "NPM - xprees",
-    "url": "https://registry.npmjs.org",
-    "scopes": [
-        "cz.xprees",
-        "com.dbrizov.naughtyattributes"
+    "scopedRegistries": [
+        {
+            "name": "package.openupm.com",
+            "url": "https://package.openupm.com",
+            "scopes": [
+                "com.cysharp"
+            ]
+        },
+        {
+            "name": "NPM - xprees",
+            "url": "https://registry.npmjs.org",
+            "scopes": [
+                "cz.xprees",
+                "com.dbrizov.naughtyattributes"
+            ]
+        }
     ]
 }
-
 ```
 
 Then simply install the package using the Unity Package Manager using the _NPM - xprees_ scope or by the package name `cz.xprees.scene-management`.
