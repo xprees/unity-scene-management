@@ -13,7 +13,7 @@ namespace Xprees.SceneManagement.Editor
         private const string initSceneDefaultPath = "Assets/Scenes/Initialization.unity";
         private readonly static string initScenePath;
 
-        public static bool IsLoadedInitScene => SceneManager.GetSceneByPath(initScenePath).isLoaded;
+        public static bool IsLoadedInitScene => SceneManager.GetSceneByBuildIndex(0).isLoaded;
 
         private static bool IsInPlayMode => EditorApplication.isPlaying;
 
