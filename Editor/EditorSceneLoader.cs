@@ -28,6 +28,7 @@ namespace Xprees.SceneManagement.Editor
 
             if (IsInPlayMode)
             {
+                // TODO fix loading addressable scenes while playing
                 SceneManager.LoadScene(scene.GetScenePath(), LoadSceneMode.Additive);
             }
             else
