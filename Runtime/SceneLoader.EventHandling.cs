@@ -36,7 +36,7 @@ namespace Xprees.SceneManagement
             }
 
             var loadElevatorTask = default(UniTask<SceneInstance>);
-            if (showTransition && useElevatorScene)
+            if (showTransition && useElevatorScene.Value)
             {
                 loadElevatorTask = LoadSceneAsync(elevatorScene, false, false);
             }

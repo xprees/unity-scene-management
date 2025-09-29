@@ -16,7 +16,7 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
         // used to restore IsActive state in OnDisable if it was changed in OnEnable (Editor doesn't reset this value)
         private bool _isActiveOnEnable;
 
-        /// Is this initialization handler active? If not, it will be skipped.
+        /// Is this initialization handler active? If not, <see cref="TriggerInitializationAsync"/> will be skipped.
         public virtual bool IsActive
         {
             get => isActive;
@@ -36,7 +36,6 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
         /// This method is called by InitializationLoader only for Active handlers.
         /// when it's time to initialize this handler and is this handler active.
         public abstract UniTask TriggerInitializationAsync(CancellationToken cancellationToken = default);
-
 
         /// This method is called by InitializationLoader on all handlers when unloading them.
         public abstract UniTask UnloadHandlerAsync(CancellationToken cancellationToken = default);
