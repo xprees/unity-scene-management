@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.Editor.Initialization;
 using Xprees.SceneManagement.ScriptableObjects;
 #if UNITY_6000_3_OR_NEWER
+using System.Collections.Generic;
 using UnityEditor.Toolbars;
 
 #else
@@ -29,14 +30,37 @@ namespace Xprees.SceneManagement.Editor
         private const string toolbarSceneDropdownPath = "Scenes/Scene Selector";
 
         [MainToolbarElement(toolbarSceneDropdownPath, defaultDockPosition = MainToolbarDockPosition.Left)]
-        public static MainToolbarElement RenderSceneDropdown()
+        public static IEnumerable<MainToolbarElement> RenderSceneTools()
         {
+            // Scene Dropdown
             var content = new MainToolbarContent(
                 GetTitle().text,
                 EditorGUIUtility.IconContent("BuildSettings.Editor").image as Texture2D,
                 "Manage scenes");
 
-            return new MainToolbarDropdown(content, ShowSceneDropDownMenu);
+            var sceneSelectionDropdown = new MainToolbarDropdown(content, ShowSceneDropDownMenu);
+
+            // Editor Auto Play Button
+            var autoPlayIcon = "PauseButton";
+            var label = "Off";
+            if (EditorInitializationLoader.Active)
+            {
+                autoPlayIcon = "PlayButton";
+                label = "Auto";
+            }
+
+            var autoPlayBtnContent = new MainToolbarContent(label,
+                EditorGUIUtility.IconContent(autoPlayIcon).image as Texture2D,
+                $"Turn {(EditorInitializationLoader.Active ? "off" : "on")} Editor Auto Play Mode Init (Normally should be on Auto)");
+
+            var autoPlayButton = new MainToolbarButton(autoPlayBtnContent, () =>
+            {
+                EditorInitializationLoader.Active = !EditorInitializationLoader.Active;
+                RefreshSceneList();
+                MainToolbar.Refresh(toolbarSceneDropdownPath);
+            });
+
+            return new MainToolbarElement[] { autoPlayButton, sceneSelectionDropdown };
         }
 
         private static void ShowSceneDropDownMenu(Rect dropdownRect)
@@ -79,9 +103,12 @@ namespace Xprees.SceneManagement.Editor
             menu.AddItem(new GUIContent("Load Init Scene"), isLoadedInitScene,
                 async () => await EditorSceneLoader.ToggleLoadOrUnloadInitScene(OpenSceneMode.Additive));
 
+#if !UNITY_6000_3_OR_NEWER
+            // This is moved to the separate button in the new toolbar system
             var editorInitializationActive = EditorInitializationLoader.Active;
             menu.AddItem(new GUIContent("Editor PlayMode Init (Normally on)"), editorInitializationActive,
                 () => EditorInitializationLoader.Active = !editorInitializationActive);
+#endif
 
             menu.AddSeparator("");
             menu.AddItem(new GUIContent("Unload all scenes (except init)"), false, UnloadAllScenesExceptInit);
