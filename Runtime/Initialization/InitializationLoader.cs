@@ -113,7 +113,8 @@ namespace Xprees.SceneManagement.Initialization
             var disabledHandlers = initializationHandlers.Where(h => !h.IsActive).ToList();
             foreach (var disabledHandler in disabledHandlers)
             {
-                Debug.LogWarning($"Initialization handler {disabledHandler.name} is disabled and will be skipped.");
+                var disabledHandlerName = disabledHandler ? disabledHandler.name : "Already destroyed handler";
+                Debug.LogWarning($"Initialization handler {disabledHandlerName} is disabled and will be skipped.");
             }
 
             if (!ActiveHandlers.Any())
