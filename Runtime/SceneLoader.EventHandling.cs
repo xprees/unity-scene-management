@@ -1,7 +1,6 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine.ResourceManagement.ResourceProviders;
-using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.Extensions;
 using Xprees.SceneManagement.ScriptableObjects;
 
@@ -56,12 +55,6 @@ namespace Xprees.SceneManagement
             environment.SetAsActiveScene();
 
             if (showLoading) RaiseToggleLoadingIndicator(false);
-        }
-
-        private static void SetAsActiveScene(SceneInstance scene)
-        {
-            if (!scene.Scene.IsValid()) return;
-            SceneManager.SetActiveScene(scene.Scene);
         }
 
         private async void LoadMenu(SceneSO scene, bool _, bool __)
