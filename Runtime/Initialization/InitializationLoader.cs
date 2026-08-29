@@ -133,14 +133,19 @@ namespace Xprees.SceneManagement.Initialization
         {
             if (scene.IsBeingProcessed || scene.IsLoaded) return;
 
-            scene.SetAsProcessed(true);
-            var sceneInstance = await scene.sceneReference
-                .LoadSceneAsync(loadMode, true)
-                .ToUniTask(cancellationToken: token);
+            try
+            {
+                scene.SetAsProcessed(true);
+                var sceneInstance = await scene.sceneReference
+                    .LoadSceneAsync(loadMode, true)
+                    .ToUniTask(cancellationToken: token);
 
-            if (setActive) sceneInstance.SetAsActiveScene();
-
-            scene.SetAsProcessed(false);
+                if (setActive) sceneInstance.SetAsActiveScene();
+            }
+            finally
+            {
+                scene.SetAsProcessed(false);
+            }
         }
     }
 }
