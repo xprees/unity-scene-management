@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement.Editor.Initialization
 {
@@ -10,7 +11,7 @@ namespace Xprees.SceneManagement.Editor.Initialization
     public static class EditorInitializationLoader
     {
         private const string initActivePrefsKey = "EditorInitializationLoader.Active";
-        private static bool active = true;
+        private static bool active;
 
         public static bool Active
         {
@@ -19,6 +20,7 @@ namespace Xprees.SceneManagement.Editor.Initialization
             {
                 active = value;
                 EditorPrefs.SetBool(initActivePrefsKey, value);
+                UpdatePlayModeStartScene(value);
             }
         }
 
@@ -30,25 +32,69 @@ namespace Xprees.SceneManagement.Editor.Initialization
 
         static EditorInitializationLoader()
         {
-            Active = EditorPrefs.GetBool(initActivePrefsKey, true);
+            active = EditorPrefs.GetBool(initActivePrefsKey, true);
+            UpdatePlayModeStartScene(active);
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
+        private static void UpdatePlayModeStartScene(bool isEnabled)
+        {
+            if (!isEnabled)
+            {
+                if (EditorSceneManager.playModeStartScene) EditorSceneManager.playModeStartScene = null;
+                return;
+            }
+
+            if (!CanAccessAssetDatabase()) return;
+
+            var initScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(EditorSceneLoader.InitScenePath);
+            if (initScene && EditorSceneManager.playModeStartScene != initScene)
+            {
+                EditorSceneManager.playModeStartScene = initScene;
+            }
+        }
+
+        private static void ResetAllSceneSOStates()
+        {
+            if (!CanAccessAssetDatabase()) return;
+
+            var guids = AssetDatabase.FindAssets($"t:{nameof(SceneSO)}");
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var sceneSO = AssetDatabase.LoadAssetAtPath<SceneSO>(path);
+                if (sceneSO) sceneSO.ResetRuntimeState();
+            }
+        }
+
+        private static bool CanAccessAssetDatabase() =>
+            !EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isCompiling;
 
         private async static void OnPlayModeChanged(PlayModeStateChange change)
         {
-            if (!Active) return;
-
             switch (change)
             {
                 case PlayModeStateChange.EnteredEditMode:
+                    UpdatePlayModeStartScene(Active);
+                    ResetAllSceneSOStates();
+                    break;
                 case PlayModeStateChange.ExitingEditMode:
+                    UpdatePlayModeStartScene(Active);
+                    ResetAllSceneSOStates();
                     break;
                 case PlayModeStateChange.EnteredPlayMode:
-                    await OnEnterPlayMode();
+                    if (Active)
+                    {
+                        await OnEnterPlayMode();
+                    }
+
                     break;
                 case PlayModeStateChange.ExitingPlayMode:
-                    await OnExitPlayMode();
+                    if (Active)
+                    {
+                        await OnExitPlayMode();
+                    }
+
                     break;
                 default:
                     Debug.LogError("Something went wrong with play mode state change");
@@ -58,7 +104,9 @@ namespace Xprees.SceneManagement.Editor.Initialization
 
         private async static UniTask OnEnterPlayMode()
         {
-            await EditorSceneLoader.LoadInitScene(OpenSceneMode.Single); // Single unloads all other scenes
+            // Single unloads all other scenes
+            if (!EditorSceneLoader.IsLoadedInitScene) await EditorSceneLoader.LoadInitScene(OpenSceneMode.Single);
+
             await UniTask.DelayFrame(2);
             EditorPlayModeInitialized?.Invoke();
         }

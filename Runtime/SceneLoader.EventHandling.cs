@@ -128,12 +128,18 @@ namespace Xprees.SceneManagement
 
         private bool IsSceneLoaded(SceneSO scene)
         {
-            if (scenesTracker == null || scenesTracker.LoadedScenes == null) return false;
-            return scenesTracker.LoadedScenes.Contains(scene);
+            if (!scene) return false;
+            if (scenesTracker && scenesTracker.LoadedScenes != null)
+            {
+                return scenesTracker.LoadedScenes.Contains(scene);
+            }
+
+            return scene.IsLoaded && scene.sceneInstance.HasValue;
         }
 
         private bool IsSceneBeingProcessed(SceneSO scene)
         {
+            if (!scene) return false;
             lock (scene) return scene.IsBeingProcessed;
         }
 

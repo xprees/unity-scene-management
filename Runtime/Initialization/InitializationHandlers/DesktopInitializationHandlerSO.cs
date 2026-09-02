@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using Xprees.SceneManagement.Events.ScriptableObjects;
+using Xprees.SceneManagement.Extensions;
 using Xprees.SceneManagement.ScriptableObjects;
 
 namespace Xprees.SceneManagement.Initialization.InitializationHandlers
@@ -16,7 +17,7 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
         [SerializeField] private AssetReferenceT<SceneSO> menuToLoadSceneDataReference;
 
         [Space]
-        [Tooltip("Asset references to the any additional scenes to load for dektop mode.")]
+        [Tooltip("Asset references to any additional scenes to load for desktop mode.")]
         [SerializeField] private List<AssetReferenceT<SceneSO>> additionalScenesToLoad;
 
         [Header("Broadcasting on")]
@@ -60,16 +61,27 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
 
         private async UniTask LoadAdditionalScenes(CancellationToken cancellationToken)
         {
+            if (additionalScenesToLoad == null || additionalScenesToLoad.Count == 0) return;
+
             var loadAdditionalSceneEventChannel = await loadAdditionalSceneEventReference
                 .LoadAssetAsync<SceneEventChannelSO>().ToUniTask(cancellationToken: cancellationToken);
 
+            var scenesToLoadTasks = new List<UniTask>();
             foreach (var sceneRef in additionalScenesToLoad)
             {
+                if (sceneRef == null) continue;
+
                 var scene = await sceneRef.LoadAssetAsync<SceneSO>().ToUniTask(cancellationToken: cancellationToken);
-                RaiseLoadMenuEvent(loadAdditionalSceneEventChannel, scene);
+                if (!scene) continue;
+
+                RaiseLoadAdditionalSceneEvent(loadAdditionalSceneEventChannel, scene);
+
+                scenesToLoadTasks.Add(
+                    UniTask.WaitUntil(scene, s => s.IsReady(), cancellationToken: cancellationToken)
+                );
             }
 
-            // We don't need to wait for additional scenes to load - Don't care
+            await UniTask.WhenAll(scenesToLoadTasks).SuppressCancellationThrow();
         }
 
         private void RaiseLoadMenuEvent(SceneEventChannelSO loadMenuEventChannel, SceneSO menuToLoad)
@@ -81,6 +93,18 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
             }
 
             loadMenuEventChannel.RaiseEvent(menuToLoad, true, false);
+        }
+
+        private void RaiseLoadAdditionalSceneEvent(SceneEventChannelSO loadAdditionalSceneEventChannel, SceneSO sceneToLoad)
+        {
+            if (loadAdditionalSceneEventChannel == null)
+            {
+                Debug.LogError("Additional scene load event channel is null. Cannot load scene.");
+                return;
+            }
+
+            // Do not show screen transitions or loading spinners for additional background scenes (e.g. Camera)
+            loadAdditionalSceneEventChannel.RaiseEvent(sceneToLoad, false, false);
         }
 
         private UniTask WaitUntilMenuIsLoaded(CancellationToken cancellationToken = default) =>

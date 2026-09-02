@@ -71,24 +71,24 @@ namespace Xprees.SceneManagement
 
         private void OnEnable()
         {
-            unloadSceneEvent.onEventRaised += UnLoadScene;
-            loadEnvironmentEvent.onEventRaised += LoadEnvironment;
-            loadMenuEvent.onEventRaised += LoadMenu;
-            loadCameraEvent.onEventRaised += LoadCamera;
-            loadPlayerSceneEvent.onEventRaised += LoadPlayerScene;
-            loadGenericSceneEvent.onEventRaised += LoadGenericScene;
+            if (unloadSceneEvent) unloadSceneEvent.onEventRaised += UnLoadScene;
+            if (loadEnvironmentEvent) loadEnvironmentEvent.onEventRaised += LoadEnvironment;
+            if (loadMenuEvent) loadMenuEvent.onEventRaised += LoadMenu;
+            if (loadCameraEvent) loadCameraEvent.onEventRaised += LoadCamera;
+            if (loadPlayerSceneEvent) loadPlayerSceneEvent.onEventRaised += LoadPlayerScene;
+            if (loadGenericSceneEvent) loadGenericSceneEvent.onEventRaised += LoadGenericScene;
 
             RaiseOnLoaderReady(); // Important during initialization
         }
 
         private void OnDisable()
         {
-            unloadSceneEvent.onEventRaised -= UnLoadScene;
-            loadEnvironmentEvent.onEventRaised -= LoadEnvironment;
-            loadMenuEvent.onEventRaised -= LoadMenu;
-            loadCameraEvent.onEventRaised -= LoadCamera;
-            loadPlayerSceneEvent.onEventRaised -= LoadPlayerScene;
-            loadGenericSceneEvent.onEventRaised -= LoadGenericScene;
+            if (unloadSceneEvent) unloadSceneEvent.onEventRaised -= UnLoadScene;
+            if (loadEnvironmentEvent) loadEnvironmentEvent.onEventRaised -= LoadEnvironment;
+            if (loadMenuEvent) loadMenuEvent.onEventRaised -= LoadMenu;
+            if (loadCameraEvent) loadCameraEvent.onEventRaised -= LoadCamera;
+            if (loadPlayerSceneEvent) loadPlayerSceneEvent.onEventRaised -= LoadPlayerScene;
+            if (loadGenericSceneEvent) loadGenericSceneEvent.onEventRaised -= LoadGenericScene;
         }
 
         private async UniTask<SceneInstance> LoadSceneAsync(
@@ -98,55 +98,71 @@ namespace Xprees.SceneManagement
             CancellationToken cancellationToken = default
         )
         {
+            if (!scene) return default;
+
             lock (scene)
             {
                 if (scene.IsBeingProcessed) return default;
                 scene.IsBeingProcessed = true;
             }
 
-            if (IsSceneLoaded(scene))
+            try
             {
-                Debug.LogWarning($"Scene {scene.sceneName} is already loaded. Skipping...");
-                return default;
+                if (IsSceneLoaded(scene))
+                {
+                    Debug.LogWarning($"Scene {scene.sceneName} is already loaded. Skipping...");
+                    return default;
+                }
+
+                isLoadingScene.Value = true;
+                if (showTransition) RaiseToggleTransitionEvent(true);
+                if (showLoading) RaiseToggleLoadingIndicator(true);
+
+                var sceneInstance = await scene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
+                    .ToUniTask(cancellationToken: cancellationToken);
+
+                scene.IsLoaded = true;
+                scene.sceneInstance = sceneInstance;
+
+                RaiseSceneReadyEvent(scene);
+                return sceneInstance;
             }
+            finally
+            {
+                if (showTransition) RaiseToggleTransitionEvent(false);
+                if (showLoading) RaiseToggleLoadingIndicator(false);
 
-            isLoadingScene.Value = true;
-            if (showTransition) RaiseToggleTransitionEvent(true);
-            if (showLoading) RaiseToggleLoadingIndicator(true);
-
-            var sceneInstance = await scene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
-                .ToUniTask(cancellationToken: cancellationToken);
-
-            lock (scene) scene.IsBeingProcessed = false;
-            scene.IsLoaded = true;
-            scene.sceneInstance = sceneInstance;
-
-            if (showTransition) RaiseToggleTransitionEvent(false);
-            if (showLoading) RaiseToggleLoadingIndicator(false);
-
-            isLoadingScene.Value = false;
-            RaiseSceneReadyEvent(scene);
-            return sceneInstance;
+                isLoadingScene.Value = false;
+                lock (scene) scene.IsBeingProcessed = false;
+            }
         }
 
         private async UniTask UnLoadSceneAsync(SceneSO scene)
         {
+            if (!scene) return;
+
             lock (scene)
             {
                 if (scene.IsBeingProcessed) return;
                 scene.IsBeingProcessed = true;
             }
 
-            if (!IsSceneLoaded(scene)) return;
+            try
+            {
+                if (!IsSceneLoaded(scene)) return;
 
-            isLoadingScene.Value = true;
-            await scene.sceneReference.UnLoadScene().ToUniTask();
+                isLoadingScene.Value = true;
+                await scene.sceneReference.UnLoadScene().ToUniTask();
 
-            lock (scene) scene.IsBeingProcessed = false;
-            scene.IsLoaded = false;
-            scene.sceneInstance = null;
-            isLoadingScene.Value = false;
-            RaiseSceneUnloadedEvent(scene);
+                scene.IsLoaded = false;
+                scene.sceneInstance = null;
+                RaiseSceneUnloadedEvent(scene);
+            }
+            finally
+            {
+                isLoadingScene.Value = false;
+                lock (scene) scene.IsBeingProcessed = false;
+            }
         }
     }
 }

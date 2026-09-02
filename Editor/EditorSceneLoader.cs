@@ -10,8 +10,10 @@ namespace Xprees.SceneManagement.Editor
 {
     public static class EditorSceneLoader
     {
-        private const string initSceneDefaultPath = "Assets/Scenes/Initialization.unity";
+        private const string initSceneDefaultPath = "Assets/Scenes/Initialization.unity"; // TODO move this config to settings
         private readonly static string initScenePath;
+
+        public static string InitScenePath => initScenePath;
 
         public static bool IsLoadedInitScene => SceneManager.GetSceneByBuildIndex(0).isLoaded;
 
@@ -114,7 +116,7 @@ namespace Xprees.SceneManagement.Editor
         private static string FindInitScenePath()
         {
             var findInitScenePath = AssetDatabase
-                .FindAssets("t:Scene Initialization")
+                .FindAssets($"t:{nameof(Scene)} Initialization")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .FirstOrDefault();
 

@@ -1,11 +1,12 @@
+using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using Xprees.Core;
-using Xprees.EditorTools.Attributes.ReadOnly;
 
 namespace Xprees.SceneManagement.ScriptableObjects
 {
+    [StatefulLifetime(StateLifetime.Persistent)] // SceneSO is a persistent ScriptableObject that holds scene data and runtime state.
     [CreateAssetMenu(menuName = "SceneData/New Scene data", fileName = "Scene")]
     public class SceneSO : DescriptionBaseSO
     {
@@ -18,19 +19,17 @@ namespace Xprees.SceneManagement.ScriptableObjects
         public SceneType sceneType;
 
         [field: Header("Run-time state")]
-        [field: ReadOnly]
-        [field: SerializeField] public bool IsBeingProcessed { get; set; }
+        [field: NonSerialized] public bool IsBeingProcessed { get; set; }
 
-        [field: ReadOnly]
-        [field: SerializeField] public bool IsLoaded { get; set; }
+        [field: NonSerialized] public bool IsLoaded { get; set; }
 
-        public SceneInstance? sceneInstance;
+        [NonSerialized] public SceneInstance? sceneInstance;
 
         private void OnEnable() => ResetRuntimeState();
 
         private void OnDisable() => ResetRuntimeState();
 
-        private void ResetRuntimeState()
+        public void ResetRuntimeState()
         {
             lock (this)
             {
