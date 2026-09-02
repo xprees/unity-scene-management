@@ -17,10 +17,6 @@ namespace Xprees.SceneManagement.Extensions
         }
 
         /// Whether the scene is loaded and ready 
-        public static bool IsReady(this SceneSO scene)
-        {
-            if (!scene) return false;
-            return scene.IsLoaded && scene.sceneInstance.HasValue;
-        }
+        public static bool IsReady(this SceneSO scene) => scene && scene.IsLoaded && scene.sceneInstance.HasValue;
     }
 }
