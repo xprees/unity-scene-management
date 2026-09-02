@@ -78,7 +78,7 @@ namespace Xprees.SceneManagement
             loadPlayerSceneEvent.onEventRaised += LoadPlayerScene;
             loadGenericSceneEvent.onEventRaised += LoadGenericScene;
 
-            RaiseOnLoaderReady();
+            RaiseOnLoaderReady(); // Important during initialization
         }
 
         private void OnDisable()
@@ -86,6 +86,7 @@ namespace Xprees.SceneManagement
             unloadSceneEvent.onEventRaised -= UnLoadScene;
             loadEnvironmentEvent.onEventRaised -= LoadEnvironment;
             loadMenuEvent.onEventRaised -= LoadMenu;
+            loadCameraEvent.onEventRaised -= LoadCamera;
             loadPlayerSceneEvent.onEventRaised -= LoadPlayerScene;
             loadGenericSceneEvent.onEventRaised -= LoadGenericScene;
         }
