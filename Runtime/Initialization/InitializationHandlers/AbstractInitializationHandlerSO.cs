@@ -7,6 +7,7 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
 {
     /// <warning>: All references in this script must be Addressables to avoid duplication in build,
     /// therefore ScriptableObjects won't be duplicated in player build and in addressables build and shared logic will work</warning>
+    [StatefulLifetime(StateLifetime.Persistent)]
     public abstract class AbstractInitializationHandlerSO : DescriptionBaseSO, IInitializationHandler
     {
         [Header("Activation")]
