@@ -12,7 +12,14 @@ namespace Xprees.SceneManagement
 
         private async void LoadEnvironment(SceneSO scene, bool showTransition, bool showLoading)
         {
-            if (IsSceneLoaded(scene) || IsSceneBeingProcessed(scene)) return;
+            if (!scene) return;
+
+            if (IsSceneBeingProcessed(scene))
+            {
+                await UniTask.WaitUntil(scene, s => !IsSceneBeingProcessed(s), cancellationToken: destroyCancellationToken);
+            }
+
+            if (IsSceneLoaded(scene)) return;
 
             // false to not show transition or loading -> we will trigger it by ourselves
             if (showTransition)
@@ -29,7 +36,7 @@ namespace Xprees.SceneManagement
             {
                 loadGameplayTask = LoadSceneAsync(gameplayScene, false, false);
             }
-            else if (VRGameplayScene != null)
+            else if (VRGameplayScene)
             {
                 loadGameplayTask = LoadSceneAsync(VRGameplayScene, false, false);
             }
@@ -43,12 +50,12 @@ namespace Xprees.SceneManagement
             var loadEnvironmentTask = LoadSceneAsync(scene, false, false);
 
             await UniTask.WhenAll(loadGameplayTask, loadElevatorTask)
-                .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
+                .AttachExternalCancellation(destroyCancellationToken);
 
             if (showTransition)
             {
                 RaiseToggleTransitionEvent(false);
-                await UniTask.Delay(defaultRenderDelayMillisecond, cancellationToken: this.GetCancellationTokenOnDestroy());
+                await UniTask.Delay(defaultRenderDelayMillisecond, cancellationToken: destroyCancellationToken);
             }
 
             var environment = await loadEnvironmentTask;
@@ -89,7 +96,7 @@ namespace Xprees.SceneManagement
 
         private UniTask UnloadGameplayScenes()
         {
-            if (scenesTracker == null || scenesTracker.LoadedScenes == null) return default;
+            if (!scenesTracker || scenesTracker.LoadedScenes == null) return default;
 
             var loadedScenes = scenesTracker.LoadedScenes;
             var loadedEnvironmentScenes =
@@ -105,25 +112,25 @@ namespace Xprees.SceneManagement
                 .Concat(gameplayScenes)
                 .Concat(levelLoadingScenes)
                 .Concat(playerScenes)
-                .Where(scene => scene != null);
+                .Where(scene => scene);
 
             return UniTask.WhenAll(unloadScenes.Select(UnLoadSceneAsync))
-                .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
+                .AttachExternalCancellation(destroyCancellationToken);
         }
 
         private async void LoadCamera(SceneSO scene, bool _, bool __) =>
-            await LoadSceneAsync(scene, false, false, this.GetCancellationTokenOnDestroy());
+            await LoadSceneAsync(scene, false, false, destroyCancellationToken);
 
         private async void LoadPlayerScene(SceneSO scene, bool _, bool __) =>
-            await LoadSceneAsync(scene, false, false, this.GetCancellationTokenOnDestroy());
+            await LoadSceneAsync(scene, false, false, destroyCancellationToken);
 
         private async void LoadGenericScene(SceneSO scene, bool showTransition, bool showLoading) =>
-            await LoadSceneAsync(scene, showTransition, showLoading, this.GetCancellationTokenOnDestroy());
+            await LoadSceneAsync(scene, showTransition, showLoading, destroyCancellationToken);
 
         private void RaiseSceneUnloadedEvent(SceneSO scene)
         {
-            if (sceneUnloadedEvent == null) return;
-            sceneUnloadedEvent.RaiseEvent(scene, default, default);
+            if (!sceneUnloadedEvent) return;
+            sceneUnloadedEvent.RaiseEvent(scene, false, false);
         }
 
         private bool IsSceneLoaded(SceneSO scene)
@@ -145,26 +152,26 @@ namespace Xprees.SceneManagement
 
         private void RaiseToggleTransitionEvent(bool start)
         {
-            if (toggleSceneTransition == null) return;
+            if (!toggleSceneTransition) return;
             toggleSceneTransition.RaiseEvent(start);
         }
 
         private void RaiseToggleLoadingIndicator(bool value)
         {
-            if (toggleLoadingIndicator == null) return;
+            if (!toggleLoadingIndicator) return;
             toggleLoadingIndicator.RaiseEvent(value);
         }
 
         private void RaiseOnLoaderReady()
         {
-            if (onLoaderReady == null) return;
+            if (!onLoaderReady) return;
             onLoaderReady.RaiseEvent();
         }
 
         private void RaiseSceneReadyEvent(SceneSO scene)
         {
-            if (onSceneReady != null) onSceneReady.RaiseEvent();
-            if (sceneLoadedEvent != null) sceneLoadedEvent.RaiseEvent(scene, default, default);
+            if (onSceneReady) onSceneReady.RaiseEvent();
+            if (sceneLoadedEvent) sceneLoadedEvent.RaiseEvent(scene, false, false);
         }
     }
 }

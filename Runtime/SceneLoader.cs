@@ -100,6 +100,14 @@ namespace Xprees.SceneManagement
         {
             if (!scene) return default;
 
+            if (scene.IsBeingProcessed)
+            {
+                // The scene itself has to be the awaited state. Passing scene.IsBeingProcessed binds
+                // WaitUntil<bool>, which captures the value once - it is true here by definition, so
+                // the predicate would never be satisfied and the load would hang forever.
+                await UniTask.WaitUntil(scene, static s => !s.IsBeingProcessed, cancellationToken: cancellationToken);
+            }
+
             lock (scene)
             {
                 if (scene.IsBeingProcessed) return default;
@@ -111,7 +119,7 @@ namespace Xprees.SceneManagement
                 if (IsSceneLoaded(scene))
                 {
                     Debug.LogWarning($"Scene {scene.sceneName} is already loaded. Skipping...");
-                    return default;
+                    return scene.sceneInstance ?? default;
                 }
 
                 isLoadingScene.Value = true;
@@ -141,6 +149,11 @@ namespace Xprees.SceneManagement
         {
             if (!scene) return;
 
+            if (scene.IsBeingProcessed)
+            {
+                await UniTask.WaitUntil(scene, static s => !s.IsBeingProcessed, cancellationToken: destroyCancellationToken);
+            }
+
             lock (scene)
             {
                 if (scene.IsBeingProcessed) return;
@@ -152,7 +165,7 @@ namespace Xprees.SceneManagement
                 if (!IsSceneLoaded(scene)) return;
 
                 isLoadingScene.Value = true;
-                await scene.sceneReference.UnLoadScene().ToUniTask();
+                await scene.sceneReference.UnLoadScene().ToUniTask(cancellationToken: destroyCancellationToken);
 
                 scene.IsLoaded = false;
                 scene.sceneInstance = null;
