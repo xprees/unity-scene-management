@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using Xprees.Events.ScriptableObjects.Base;
 using Xprees.Events.ScriptableObjects.Primitive;
 using Xprees.SceneManagement.Events.ScriptableObjects;
+using Xprees.SceneManagement.Extensions;
 using Xprees.SceneManagement.ScriptableObjects;
 using Xprees.Variables.Reference.Primitive;
 
@@ -126,7 +127,7 @@ namespace Xprees.SceneManagement
                 if (showTransition) RaiseToggleTransitionEvent(true);
                 if (showLoading) RaiseToggleLoadingIndicator(true);
 
-                var sceneInstance = await scene.sceneReference.LoadSceneAsync(LoadSceneMode.Additive, true)
+                var sceneInstance = await scene.LoadSceneAsync(LoadSceneMode.Additive, true)
                     .ToUniTask(cancellationToken: cancellationToken);
 
                 scene.IsLoaded = true;
@@ -165,7 +166,11 @@ namespace Xprees.SceneManagement
                 if (!IsSceneLoaded(scene)) return;
 
                 isLoadingScene.Value = true;
-                await scene.sceneReference.UnLoadScene().ToUniTask(cancellationToken: destroyCancellationToken);
+                var unloadHandle = scene.UnloadSceneAsync();
+                if (unloadHandle.IsValid())
+                {
+                    await unloadHandle.ToUniTask(cancellationToken: destroyCancellationToken);
+                }
 
                 scene.IsLoaded = false;
                 scene.sceneInstance = null;

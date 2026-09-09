@@ -183,7 +183,7 @@ namespace Xprees.SceneManagement.Initialization
             try
             {
                 scene.SetAsProcessed(true);
-                var sceneInstance = await scene.sceneReference
+                var sceneInstance = await scene
                     .LoadSceneAsync(loadMode, true)
                     .ToUniTask(cancellationToken: token);
 

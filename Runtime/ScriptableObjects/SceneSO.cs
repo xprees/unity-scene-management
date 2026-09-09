@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using Xprees.Core;
+using Xprees.SceneManagement.Extensions;
 
 namespace Xprees.SceneManagement.ScriptableObjects
 {
@@ -36,6 +37,9 @@ namespace Xprees.SceneManagement.ScriptableObjects
                 IsBeingProcessed = false;
                 IsLoaded = false;
                 sceneInstance = null;
+#if UNITY_EDITOR
+                sceneReference?.ResetOperationHandle();
+#endif
             }
         }
 

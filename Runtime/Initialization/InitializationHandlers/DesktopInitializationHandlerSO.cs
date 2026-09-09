@@ -51,9 +51,9 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
 
         private async UniTask LoadMenu(CancellationToken cancellationToken = default)
         {
-            var loadMenuEventChannel = await loadMenuEventAssetReference.LoadAssetAsync<SceneEventChannelSO>()
+            var loadMenuEventChannel = await loadMenuEventAssetReference.LoadAssetAddressableAsync<SceneEventChannelSO>()
                 .ToUniTask(cancellationToken: cancellationToken);
-            _menuToLoad = await menuToLoadSceneDataReference.LoadAssetAsync<SceneSO>()
+            _menuToLoad = await menuToLoadSceneDataReference.LoadAssetAddressableAsync<SceneSO>()
                 .ToUniTask(cancellationToken: cancellationToken);
 
             RaiseLoadMenuEvent(loadMenuEventChannel, _menuToLoad);
@@ -64,14 +64,14 @@ namespace Xprees.SceneManagement.Initialization.InitializationHandlers
             if (additionalScenesToLoad == null || additionalScenesToLoad.Count == 0) return;
 
             var loadAdditionalSceneEventChannel = await loadAdditionalSceneEventReference
-                .LoadAssetAsync<SceneEventChannelSO>().ToUniTask(cancellationToken: cancellationToken);
+                .LoadAssetAddressableAsync<SceneEventChannelSO>().ToUniTask(cancellationToken: cancellationToken);
 
             var scenesToLoadTasks = new List<UniTask>();
             foreach (var sceneRef in additionalScenesToLoad)
             {
                 if (sceneRef == null) continue;
 
-                var scene = await sceneRef.LoadAssetAsync<SceneSO>().ToUniTask(cancellationToken: cancellationToken);
+                var scene = await sceneRef.LoadAssetAddressableAsync<SceneSO>().ToUniTask(cancellationToken: cancellationToken);
                 if (!scene) continue;
 
                 RaiseLoadAdditionalSceneEvent(loadAdditionalSceneEventChannel, scene);
