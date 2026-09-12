@@ -10,7 +10,6 @@
   "dependencies": {
     "com.unity.addressables": "2.9.1",
     "com.cysharp.unitask": "2.5.11",
-    "com.marijnzwemmer.unity-toolbar-extender": "1.4.2",
     "com.dbrizov.naughtyattributes": "2.1.4",
     "cz.xprees.core": "2.0.33",
     "cz.xprees.variables": "1.0.23",

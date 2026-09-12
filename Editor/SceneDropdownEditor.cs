@@ -1,17 +1,12 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Toolbars;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Xprees.SceneManagement.Editor.Initialization;
 using Xprees.SceneManagement.ScriptableObjects;
-#if UNITY_6000_3_OR_NEWER
-using System.Collections.Generic;
-using UnityEditor.Toolbars;
-
-#else
-using UnityToolbarExtender;
-#endif
 
 namespace Xprees.SceneManagement.Editor
 {
@@ -67,26 +62,6 @@ namespace Xprees.SceneManagement.Editor
         {
             PrepareSceneListMenu().DropDown(dropdownRect);
             MainToolbar.Refresh(toolbarSceneDropdownPath);
-        }
-#else
-        [InitializeOnLoadMethod]
-        public static void RenderToolbarTools()
-        {
-            ToolbarExtender.LeftToolbarGUI.Add(OnToolbarGUI);
-        }
-
-        private static void OnToolbarGUI()
-        {
-            GUILayout.Space(5);
-
-            // Create the dropdown button
-            if (GUILayout.Button(GetTitle(), EditorStyles.toolbarDropDown))
-            {
-                var menu = PrepareSceneListMenu();
-                menu.ShowAsContext();
-            }
-
-            GUILayout.FlexibleSpace();
         }
 #endif
 
