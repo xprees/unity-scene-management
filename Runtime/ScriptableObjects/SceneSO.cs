@@ -7,9 +7,10 @@ using Xprees.SceneManagement.Extensions;
 
 namespace Xprees.SceneManagement.ScriptableObjects
 {
+    [ResetOnPlayMode(PlayModeResetTiming.Both)]
     [StatefulLifetime(StateLifetime.Persistent)] // SceneSO is a persistent ScriptableObject that holds scene data and runtime state.
     [CreateAssetMenu(menuName = "SceneData/New Scene data", fileName = "Scene")]
-    public class SceneSO : DescriptionBaseSO
+    public class SceneSO : DescriptionBaseSO, IRuntimeStateOwner
     {
         [Header("Reference")]
         public AssetReference sceneReference;
@@ -26,9 +27,7 @@ namespace Xprees.SceneManagement.ScriptableObjects
 
         [NonSerialized] public SceneInstance? sceneInstance;
 
-        private void OnEnable() => ResetRuntimeState();
-
-        private void OnDisable() => ResetRuntimeState();
+        public void ClearTransientState() => ResetRuntimeState();
 
         public void ResetRuntimeState()
         {
@@ -42,7 +41,5 @@ namespace Xprees.SceneManagement.ScriptableObjects
 #endif
             }
         }
-
-        public override void ResetState() => ResetRuntimeState();
     }
 }

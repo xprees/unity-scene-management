@@ -8,14 +8,14 @@
   "license": "Apache-2.0",
   "category": "Tool",
   "dependencies": {
-    "com.unity.addressables": "1.21.9",
-    "com.cysharp.unitask": "2.5.10",
+    "com.unity.addressables": "2.9.1",
+    "com.cysharp.unitask": "2.5.11",
     "com.marijnzwemmer.unity-toolbar-extender": "1.4.2",
     "com.dbrizov.naughtyattributes": "2.1.4",
-    "cz.xprees.core": "1.0.32",
-    "cz.xprees.variables": "1.0.11",
-    "cz.xprees.events": "1.0.15",
-    "cz.xprees.editor-tools": "1.0.15"
+    "cz.xprees.core": "2.0.33",
+    "cz.xprees.variables": "1.0.23",
+    "cz.xprees.events": "1.0.24",
+    "cz.xprees.editor-tools": "1.0.22"
   },
   "keywords": [
     "Scenes",
